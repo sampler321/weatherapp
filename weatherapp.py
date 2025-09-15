@@ -1,7 +1,8 @@
 import json
 import smtplib
 import os
-import datetime # This is a new library we're adding
+import datetime
+import pytz # We're adding the pytz library to handle time zones
 
 from email.message import EmailMessage
 from buienradar.buienradar import get_data
@@ -43,10 +44,11 @@ def get_temperature():
 # The main part that runs the whole script
 if __name__ == "__main__":
     temperature = get_temperature()
-    
-    # Get the current time and hour
-    current_time = datetime.datetime.now()
-    current_hour = current_time.strftime("%I %p").lstrip('0') # This formats the time to be like "10 AM"
+
+    # Get the current time and adjust for the time zone in Rotterdam
+    local_tz = pytz.timezone('Europe/Amsterdam')
+    current_time = datetime.datetime.now(local_tz)
+    current_hour = current_time.strftime("%I %p").lstrip('0')
 
     if temperature is not None:
         subject = "Daily Weather Report"
