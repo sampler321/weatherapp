@@ -1,12 +1,13 @@
 import json
 import smtplib
+import os
+import datetime # This is a new library we're adding
+
 from email.message import EmailMessage
 from buienradar.buienradar import get_data
 from buienradar.constants import CONTENT, SUCCESS
-import os # This is a new library to get your secret password from GitHub
 
 # Email account information
-# We're getting these values from the GitHub secrets you'll set up.
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL')
 APP_PASSWORD = os.environ.get('APP_PASSWORD')
 RECEIVER_EMAIL = os.environ.get('RECEIVER_EMAIL')
@@ -19,7 +20,6 @@ def send_email(subject, body):
     msg['From'] = SENDER_EMAIL
     msg['To'] = RECEIVER_EMAIL
 
-    # This part connects to the email server and sends the email
     try:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
             smtp.login(SENDER_EMAIL, APP_PASSWORD)
@@ -40,13 +40,17 @@ def get_temperature():
                 return station['temperature']
     return None
 
-# This is the main part that runs the whole script
+# The main part that runs the whole script
 if __name__ == "__main__":
     temperature = get_temperature()
+    
+    # Get the current time and hour
+    current_time = datetime.datetime.now()
+    current_hour = current_time.strftime("%I %p").lstrip('0') # This formats the time to be like "10 AM"
 
     if temperature is not None:
         subject = "Daily Weather Report"
-        body = f"The temperature today at 10 AM is {temperature} °C. Have a great day!"
+        body = f"The temperature today at {current_hour} is {temperature} °C. Have a great day!"
         send_email(subject, body)
     else:
         print("Could not get temperature data.")
